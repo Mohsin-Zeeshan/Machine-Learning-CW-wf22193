@@ -1,3 +1,4 @@
+#%%
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.compose import ColumnTransformer
@@ -63,3 +64,4 @@ plt.title("Predicted vs Actual Insurance Charges (Test Set)")
 plt.legend()
 plt.tight_layout()
 plt.show()
+# %%
