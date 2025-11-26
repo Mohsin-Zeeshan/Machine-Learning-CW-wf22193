@@ -19,7 +19,7 @@ categorical_features = ["sex", "smoker", "region"]
 preprocessor = ColumnTransformer(
     transformers=[
         ("num", StandardScaler(), numeric_features),
-        ("cat", OneHotEncoder(drop="first"), categorical_features),
+        ("cat", OneHotEncoder(), categorical_features),
     ]
 )
 
@@ -35,10 +35,17 @@ X_test_prep = preprocessor.transform(X_test)
 model = LinearRegression()
 model.fit(X_train_prep, y_train)
 
-# Print learned coefficients with feature names
-feature_names = preprocessor.get_feature_names_out()
+# Print learned coefficients with cleaner feature names
+raw_feature_names = preprocessor.get_feature_names_out()
+clean_feature_names = []
+for name in raw_feature_names:
+    # Remove transformer prefix "num__" / "cat__"
+    if "__" in name:
+        name = name.split("__", 1)[1]
+    clean_feature_names.append(name)
+
 print("Learned coefficients:")
-for name, coef in zip(feature_names, model.coef_):
+for name, coef in zip(clean_feature_names, model.coef_):
     print(f"{name}: {coef:.3f}")
 print(f"Intercept: {model.intercept_:.3f}")
 
@@ -63,5 +70,6 @@ plt.ylabel("Predicted Charges")
 plt.title("Predicted vs Actual Insurance Charges (Test Set)")
 plt.legend()
 plt.tight_layout()
+plt.savefig("task1_pred_vs_actual.png", dpi=300)
 plt.show()
-# %%
+#%%

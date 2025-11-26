@@ -57,14 +57,21 @@ def prepare_data(file_name: str = "regression_insurance.csv"):
     )
 
 
-def train_model(model: nn.Module, X_train: torch.Tensor, y_train: torch.Tensor, epochs: int = 400, lr: float = 0.001, batch_size: int = 64):
+def train_model(
+    model: nn.Module,
+    X_train: torch.Tensor,
+    y_train: torch.Tensor,
+    epochs: int = 400,
+    lr: float = 0.001,
+    batch_size: int = 64,
+):
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     dataset = torch.utils.data.TensorDataset(X_train, y_train)
     loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-    for _ in range(epochs):
+    for epoch in range(epochs):
         model.train()
         for xb, yb in loader:
             optimizer.zero_grad()
@@ -72,6 +79,9 @@ def train_model(model: nn.Module, X_train: torch.Tensor, y_train: torch.Tensor, 
             loss = criterion(preds, yb)
             loss.backward()
             optimizer.step()
+
+        if (epoch + 1) % 50 == 0:
+            print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss.item():.3f}")
 
     return model
 
@@ -112,6 +122,7 @@ def main():
     plt.title("Neural Network: Predicted vs Actual Charges (Test Set)")
     plt.legend()
     plt.tight_layout()
+    plt.savefig("task2_pred_vs_actual.png", dpi=300)
     plt.show()
 
 

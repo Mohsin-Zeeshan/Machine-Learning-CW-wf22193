@@ -34,13 +34,21 @@ def prepare_data(file_name: str = "regression_insurance.csv"):
         return matrix.toarray() if hasattr(matrix, "toarray") else np.asarray(matrix)
 
     X_train_arr = to_dense(X_train_p).astype("float64")
-    feature_names = preprocessor.get_feature_names_out()
 
-    return X_train_arr, y_train, feature_names
+    # Get and CLEAN feature names so they match task1.py style
+    raw_feature_names = preprocessor.get_feature_names_out()
+    clean_feature_names = []
+    for name in raw_feature_names:
+        if "__" in name:
+            name = name.split("__", 1)[1]  # drop "num__" / "cat__"
+        clean_feature_names.append(name)
+
+    return X_train_arr, y_train, clean_feature_names
 
 
 def run_bayesian_regression(X_train: np.ndarray, y_train: np.ndarray):
     with pm.Model() as model:
+        # Your original wide priors
         beta = pm.Normal("beta", mu=0.0, sigma=5000.0, shape=X_train.shape[1])
         intercept = pm.Normal("intercept", mu=10000.0, sigma=5000.0)
         sigma = pm.HalfNormal("sigma", sigma=5000.0)
@@ -67,10 +75,13 @@ def print_posterior_means(trace, feature_names):
     )[["mean"]]
 
     print("Posterior means:")
-    print(f"intercept: {summary.loc['intercept', 'mean']:.3f}")
+    # Print coefficients feature-by-feature (same style as task1)
     for i, name in enumerate(feature_names):
         coef = summary.loc[f"beta[{i}]", "mean"]
         print(f"{name}: {coef:.3f}")
+
+    # Intercept and noise at the end
+    print(f"Intercept: {summary.loc['intercept', 'mean']:.3f}")
     print(f"sigma: {summary.loc['sigma', 'mean']:.3f}")
 
 
@@ -82,3 +93,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+#%%

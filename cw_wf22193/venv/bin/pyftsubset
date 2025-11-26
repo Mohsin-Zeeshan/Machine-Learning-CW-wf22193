@@ -1,0 +1,8 @@
+#!/home/mohsin/ML/Machine-Learning-CW-wf22193/cw_wf22193/venv/bin/python3
+# -*- coding: utf-8 -*-
+import re
+import sys
+from fontTools.subset import main
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(main())
