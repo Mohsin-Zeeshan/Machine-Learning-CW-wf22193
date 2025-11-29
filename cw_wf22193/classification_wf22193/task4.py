@@ -1,4 +1,4 @@
-import argparse
+# task4.py
 from pathlib import Path
 import pickle
 
@@ -7,6 +7,10 @@ from sklearn.decomposition import PCA
 
 RANDOM_SEED = 42
 N_COMPONENTS = 200
+
+DATA_DIR = Path("cifar-10-batches-py")
+METHOD = "pca"          
+OUTPUT_PATH = Path("cifar_pca_200.npz")
 
 
 def load_batch(batch_path: Path):
@@ -54,46 +58,23 @@ def load_reduced_data(reduced_path: Path):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Reduce CIFAR-10 features from 3072 to 200 dimensions."
-    )
-    parser.add_argument(
-        "--data_dir",
-        type=Path,
-        default=Path("cifar-10-batches-py"),
-        help="Folder containing the CIFAR-10 python batches.",
-    )
-    parser.add_argument(
-        "--method",
-        choices=["pca", "random"],
-        default="pca",
-        help="Dimensionality reduction technique to use.",
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("cifar_pca_200.npz"),
-        help="File to store the reduced dataset.",
-    )
-    args = parser.parse_args()
-
-    if not args.data_dir.exists():
+    if not DATA_DIR.exists():
         raise FileNotFoundError(
-            f"Could not find {args.data_dir}. Download and extract CIFAR-10 first."
+            f"Could not find {DATA_DIR}. Download and extract CIFAR-10 first."
         )
 
-    X_train, y_train, X_test, y_test = load_cifar10(args.data_dir)
-    X_train_red, X_test_red = reduce_dimensions(X_train, X_test, args.method)
+    X_train, y_train, X_test, y_test = load_cifar10(DATA_DIR)
+    X_train_red, X_test_red = reduce_dimensions(X_train, X_test, METHOD)
 
     np.savez(
-        args.output,
+        OUTPUT_PATH,
         X_train=X_train_red,
         y_train=y_train,
         X_test=X_test_red,
         y_test=y_test,
     )
     print(
-        f"Saved reduced data to {args.output} "
+        f"Saved reduced data to {OUTPUT_PATH} "
         f"(train shape {X_train_red.shape}, test shape {X_test_red.shape})."
     )
 
