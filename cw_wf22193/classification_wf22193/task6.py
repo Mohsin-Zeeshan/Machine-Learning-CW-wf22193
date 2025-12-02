@@ -22,7 +22,9 @@ def load_reduced_data(path: Path):
 def main():
     X_train, y_train, X_test, y_test = load_reduced_data(REDUCED_PATH)
 
+#Hyperparameters for random forest
     param_dist = {
+        "criterion": ["gini", "entropy"],
         "n_estimators": [100, 200],
         "max_depth": [None, 20, 40],
         "max_features": ["sqrt", 0.5],
@@ -30,6 +32,7 @@ def main():
         "min_samples_leaf": [1, 2],
     }
 
+#Initialise random forest with parallelisation
     rf = RandomForestClassifier(
         random_state=RANDOM_SEED,
         n_jobs=-1,
@@ -48,6 +51,7 @@ def main():
 
     print("Best params (RF):", search.best_params_)
 
+#Evaluate best model on test set
     best_rf = search.best_estimator_
     y_pred = best_rf.predict(X_test)
     test_acc = accuracy_score(y_test, y_pred)

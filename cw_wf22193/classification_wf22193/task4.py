@@ -9,7 +9,7 @@ RANDOM_SEED = 42
 N_COMPONENTS = 200
 
 DATA_DIR = Path("cifar-10-batches-py")
-METHOD = "pca"          
+METHOD = "pca"
 OUTPUT_PATH = Path("cifar_pca_200.npz")
 
 
@@ -20,6 +20,7 @@ def load_batch(batch_path: Path):
 
 
 def load_cifar10(data_dir: Path):
+#Load all 5 training batches
     X_train_parts, y_train_parts = [], []
     for i in range(1, 6):
         X, y = load_batch(data_dir / f"data_batch_{i}")
@@ -41,6 +42,7 @@ def reduce_dimensions(X_train, X_test, method: str = "pca"):
         idx = rng.choice(X_train.shape[1], size=N_COMPONENTS, replace=False)
         return X_train[:, idx], X_test[:, idx]
 
+#Apply PCA to reduce from 3072 to N_COMPONENTS features which is 200
     pca = PCA(n_components=N_COMPONENTS, random_state=RANDOM_SEED)
     X_train_reduced = pca.fit_transform(X_train)
     X_test_reduced = pca.transform(X_test)

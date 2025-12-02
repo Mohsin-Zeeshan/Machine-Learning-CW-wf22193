@@ -7,13 +7,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from torch import nn
 
-# Reproducibility
 torch.manual_seed(42)
 np.random.seed(42)
 
 
 def build_model(input_dim: int) -> nn.Module:
-    # Small MLP with two hidden layers
+    """Build a 3-layer neural network with ReLU activation"""
     return nn.Sequential(
         nn.Linear(input_dim, 64),
         nn.ReLU(),
@@ -38,6 +37,7 @@ def prepare_data(file_name: str = "regression_insurance.csv"):
         ]
     )
 
+#Split and preprocess the data
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
@@ -45,10 +45,11 @@ def prepare_data(file_name: str = "regression_insurance.csv"):
     X_train_prep = preprocessor.fit_transform(X_train)
     X_test_prep = preprocessor.transform(X_test)
 
-    # Handle sparse output from OneHotEncoder
+#Helper to convert sparse or dense arrays to numpy
     def to_numpy(array_like):
         return array_like.toarray() if hasattr(array_like, "toarray") else np.asarray(array_like)
 
+#Convert to PyTorch tensors for training
     return (
         torch.tensor(to_numpy(X_train_prep), dtype=torch.float32),
         torch.tensor(y_train, dtype=torch.float32).unsqueeze(1),
@@ -80,6 +81,7 @@ def train_model(
             loss.backward()
             optimizer.step()
 
+#Print progress every 50 epochs
         if (epoch + 1) % 50 == 0:
             print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss.item():.3f}")
 
@@ -87,16 +89,20 @@ def train_model(
 
 
 def rmse(y_true: torch.Tensor, y_pred: torch.Tensor) -> float:
+    """Calculate root mean squared error"""
     return torch.sqrt(nn.functional.mse_loss(y_pred, y_true)).item()
 
 
 def main():
+
     X_train, y_train, X_test, y_test = prepare_data()
     input_dim = X_train.shape[1]
 
+#Build and train the model
     model = build_model(input_dim)
     model = train_model(model, X_train, y_train)
 
+#Evaluate on both training and test sets
     model.eval()
     with torch.no_grad():
         train_pred = model(X_train)
@@ -108,7 +114,7 @@ def main():
     print(f"Train RMSE: {train_rmse:.3f}")
     print(f"Test RMSE: {test_rmse:.3f}")
 
-    # Scatter plot predicted vs actual on the test set
+#Create visualisation of predictions
     y_test_np = y_test.squeeze().numpy()
     test_pred_np = test_pred.squeeze().numpy()
 

@@ -20,10 +20,11 @@ def prepare_data(file_name: str = "regression_insurance.csv"):
     preprocessor = ColumnTransformer(
         transformers=[
             ("num", StandardScaler(), numeric),
-            ("cat", OneHotEncoder(drop="first"), categorical),
+            ("cat", OneHotEncoder(drop=None), categorical),
         ]
     )
 
+#Only need training data for Bayesian inference
     X_train, _, y_train, _ = train_test_split(
         X, y, test_size=0.2, random_state=RANDOM_SEED
     )
@@ -35,12 +36,12 @@ def prepare_data(file_name: str = "regression_insurance.csv"):
 
     X_train_arr = to_dense(X_train_p).astype("float64")
 
-    # Get and CLEAN feature names so they match task1.py style
+#Extract and clean feature names for reporting
     raw_feature_names = preprocessor.get_feature_names_out()
     clean_feature_names = []
     for name in raw_feature_names:
         if "__" in name:
-            name = name.split("__", 1)[1]  # drop "num__" / "cat__"
+            name = name.split("__", 1)[1]
         clean_feature_names.append(name)
 
     return X_train_arr, y_train, clean_feature_names
@@ -48,7 +49,7 @@ def prepare_data(file_name: str = "regression_insurance.csv"):
 
 def run_bayesian_regression(X_train: np.ndarray, y_train: np.ndarray):
     with pm.Model() as model:
-        # Your original wide priors
+#Prior distributions for coefficients and intercept
         beta = pm.Normal("beta", mu=0.0, sigma=5000.0, shape=X_train.shape[1])
         intercept = pm.Normal("intercept", mu=10000.0, sigma=5000.0)
         sigma = pm.HalfNormal("sigma", sigma=5000.0)
@@ -75,12 +76,10 @@ def print_posterior_means(trace, feature_names):
     )[["mean"]]
 
     print("Posterior means:")
-    # Print coefficients feature-by-feature (same style as task1)
     for i, name in enumerate(feature_names):
         coef = summary.loc[f"beta[{i}]", "mean"]
         print(f"{name}: {coef:.3f}")
 
-    # Intercept and noise at the end
     print(f"Intercept: {summary.loc['intercept', 'mean']:.3f}")
     print(f"sigma: {summary.loc['sigma', 'mean']:.3f}")
 

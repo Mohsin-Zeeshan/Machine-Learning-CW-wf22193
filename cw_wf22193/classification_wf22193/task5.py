@@ -11,6 +11,7 @@ REDUCED_PATH = Path("cifar_pca_200.npz")
 
 
 def load_reduced_data(path: Path):
+    """Load PCA-reduced CIFAR-10 dataset"""
     if not path.exists():
         raise FileNotFoundError(
             f"Could not find reduced dataset at {path}. Run task4.py first."
@@ -22,6 +23,7 @@ def load_reduced_data(path: Path):
 def main():
     X_train, y_train, X_test, y_test = load_reduced_data(REDUCED_PATH)
 
+#Define hyperparameter search space
     params = {
         "criterion": ["gini", "entropy"],
         "max_depth": [10, 20, 30, None],
@@ -29,6 +31,7 @@ def main():
         "min_samples_leaf": [1, 5, 10],
     }
 
+#Perform grid search with cross-validation
     clf = GridSearchCV(
         DecisionTreeClassifier(random_state=RANDOM_SEED),
         param_grid=params,
@@ -39,6 +42,7 @@ def main():
 
     print("Best params:", clf.best_params_)
 
+#Evaluate best model on test set
     best_tree = clf.best_estimator_
     y_pred = best_tree.predict(X_test)
     test_acc = accuracy_score(y_test, y_pred)

@@ -8,10 +8,11 @@ from sklearn.svm import SVC
 
 RANDOM_SEED = 42
 REDUCED_PATH = Path("cifar_pca_200.npz")
-MAX_TRAIN_SAMPLES = 20000  # to keep SVM training reasonable
+MAX_TRAIN_SAMPLES = 15000  # Limit for grid search due to SVM training time
 
 
 def load_reduced_data(path: Path):
+    """Load PCA-reduced CIFAR-10 dataset"""
     if not path.exists():
         raise FileNotFoundError(
             f"Could not find reduced dataset at {path}. Run task4.py first."
@@ -32,33 +33,44 @@ def main():
         X_train_cv = X_train
         y_train_cv = y_train
 
+#Define hyperparameter grid for RBF kernel
     param_grid = [
         {
-            "kernel": ["linear"],
-            "C": [0.1, 1, 10],
-        },
-        {
             "kernel": ["rbf"],
-            "C": [1, 10],
-            "gamma": ["scale", 0.01],
+            "C": [2.5, 3, 3.5, 4],
+            "gamma": [0.008, 0.01, 0.012, 0.015, "scale"],
         },
     ]
 
-    svm = SVC(random_state=RANDOM_SEED)
+    svm = SVC(random_state=RANDOM_SEED, cache_size=1000)
 
+#Perform grid search with cross-validation on subset
     clf = GridSearchCV(
         svm,
         param_grid=param_grid,
-        cv=3,
+        cv=5,
         n_jobs=-1,
+        verbose=1,
     )
 
     clf.fit(X_train_cv, y_train_cv)
 
     print("Best params (SVM):", clf.best_params_)
+    print(f"Best CV score: {clf.best_score_:.4f}")
 
-    best_svm = clf.best_estimator_
-    y_pred = best_svm.predict(X_test)
+#Train final model on full training set with best parameters
+    best_params = clf.best_params_
+    final_svm = SVC(
+        C=best_params['C'],
+        gamma=best_params['gamma'],
+        kernel=best_params['kernel'],
+        random_state=RANDOM_SEED,
+        cache_size=1000
+    )
+    final_svm.fit(X_train, y_train)
+
+#Evaluate on test set
+    y_pred = final_svm.predict(X_test)
     test_acc = accuracy_score(y_test, y_pred)
     print(f"Test accuracy (SVM): {test_acc:.4f}")
 

@@ -54,7 +54,7 @@ def compute_transition_matrix(seq, n_levels=3):
     t = np.zeros((n_levels, n_levels))
     for a, b in zip(seq[:-1], seq[1:]): t[a, b] += 1
     row_sums = t.sum(axis=1, keepdims=True)
-    row_sums[row_sums == 0] = 1
+    row_sums[row_sums == 0] = 1  
     return t / row_sums
 
 def transition_mse(A, B):
@@ -75,6 +75,7 @@ def plot_frequencies(f_true, f1, f2, labels):
     plt.show()
 
 def plot_transition_matrices(Tt, T1, T2, labels):
+    """Compare transition matrices as heatmaps"""
     fig, ax = plt.subplots(1,3,figsize=(12,4))
     for a, M, title in zip(ax, [Tt,T1,T2], ["Actual","HMM1","HMM2"]):
         im = a.imshow(M, origin="upper")
@@ -92,6 +93,7 @@ def main():
 
     n_states = len(np.unique(temp_states))
 
+#Train both HMMs
     hmm1 = learn_hmm1_supervised(temp_states, deaths_codes, n_states)
     hmm2 = learn_hmm2_unsupervised(deaths_codes, n_states)
 
@@ -111,6 +113,7 @@ def main():
 
     print("\nTransition MSE:\n HMM1:", transition_mse(T_true, T1), "\n HMM2:", transition_mse(T_true, T2))
 
+#Visualise results
     plot_frequencies(f_true, f1, f2, labels)
     plot_transition_matrices(T_true, T1, T2, labels)
 
