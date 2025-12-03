@@ -14,13 +14,13 @@ def prepare_data(file_name: str = "regression_insurance.csv"):
     X = data.drop(columns=["charges"])
     y = data["charges"].values.astype("float64")
 
-    numeric = ["age", "bmi", "children"]
-    categorical = ["sex", "smoker", "region"]
+    numerical_features = ["age", "bmi", "children"]
+    categorical_features = ["sex", "smoker", "region"]
 
     preprocessor = ColumnTransformer(
         transformers=[
-            ("num", StandardScaler(), numeric),
-            ("cat", OneHotEncoder(drop=None), categorical),
+            ("num", StandardScaler(), numerical_features),
+            ("cat", OneHotEncoder(drop=None), categorical_features),
         ]
     )
 

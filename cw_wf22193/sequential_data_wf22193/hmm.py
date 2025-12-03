@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import pymc as pm
 from hmmlearn import hmm
 
-RANDOM_SEED = 42
 
 def load_data():
     df = pd.read_csv(pm.get_data("deaths_and_temps_england_wales.csv"))
@@ -34,7 +33,7 @@ def learn_hmm1_supervised(temp_states, deaths_codes, n_temp_states, n_death_leve
     for z, o in zip(temp_states, deaths_codes): emiss[z, o] += 1
     emiss /= emiss.sum(axis=1, keepdims=True)
 
-    model = hmm.CategoricalHMM(n_components=n_temp_states, random_state=RANDOM_SEED)
+    model = hmm.CategoricalHMM(n_components=n_temp_states, random_state=42)
     model.startprob_ = startprob
     model.transmat_ = trans
     model.emissionprob_ = emiss
@@ -42,7 +41,7 @@ def learn_hmm1_supervised(temp_states, deaths_codes, n_temp_states, n_death_leve
 
 def learn_hmm2_unsupervised(deaths_codes, n_states, n_iter=100):
     X = deaths_codes.reshape(-1, 1)
-    model = hmm.CategoricalHMM(n_components=n_states, n_iter=n_iter, random_state=RANDOM_SEED)
+    model = hmm.CategoricalHMM(n_components=n_states, n_iter=n_iter, random_state=42)
     model.fit(X, lengths=[len(deaths_codes)])
     return model
 
@@ -98,8 +97,8 @@ def main():
     hmm2 = learn_hmm2_unsupervised(deaths_codes, n_states)
 
     T = len(deaths_codes)
-    d1 = hmm1.sample(T, random_state=RANDOM_SEED)[0].ravel()
-    d2 = hmm2.sample(T, random_state=RANDOM_SEED)[0].ravel()
+    d1 = hmm1.sample(T, random_state=42)[0].ravel()
+    d2 = hmm2.sample(T, random_state=42)[0].ravel()
 
     f_true = compute_frequencies(deaths_codes)
     f1 = compute_frequencies(d1)

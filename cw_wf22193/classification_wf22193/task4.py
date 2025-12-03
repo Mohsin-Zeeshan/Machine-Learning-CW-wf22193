@@ -10,7 +10,7 @@ N_COMPONENTS = 200
 
 DATA_DIR = Path("cifar-10-batches-py")
 METHOD = "pca"
-OUTPUT_PATH = Path("cifar_pca_200.npz")
+OUTPUT_DIR = Path("cifar_pca_200.npz")
 
 
 def load_batch(batch_path: Path):
@@ -69,14 +69,14 @@ def main():
     X_train_red, X_test_red = reduce_dimensions(X_train, X_test, METHOD)
 
     np.savez(
-        OUTPUT_PATH,
+        OUTPUT_DIR,
         X_train=X_train_red,
         y_train=y_train,
         X_test=X_test_red,
         y_test=y_test,
     )
     print(
-        f"Saved reduced data to {OUTPUT_PATH} "
+        f"Saved reduced data to {OUTPUT_DIR} "
         f"(train shape {X_train_red.shape}, test shape {X_test_red.shape})."
     )
 

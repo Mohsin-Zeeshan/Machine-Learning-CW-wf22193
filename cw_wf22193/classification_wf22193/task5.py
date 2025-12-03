@@ -1,13 +1,11 @@
 # task5.py
-from pathlib import Path
-
 import numpy as np
+from pathlib import Path
 from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 
-RANDOM_SEED = 42
-REDUCED_PATH = Path("cifar_pca_200.npz")
+REDUCED_DIR = Path("cifar_pca_200.npz")
 
 
 def load_reduced_data(path: Path):
@@ -21,7 +19,7 @@ def load_reduced_data(path: Path):
 
 
 def main():
-    X_train, y_train, X_test, y_test = load_reduced_data(REDUCED_PATH)
+    X_train, y_train, X_test, y_test = load_reduced_data(REDUCED_DIR)
 
 #Define hyperparameter search space
     params = {
@@ -33,7 +31,7 @@ def main():
 
 #Perform grid search with cross-validation
     clf = GridSearchCV(
-        DecisionTreeClassifier(random_state=RANDOM_SEED),
+        DecisionTreeClassifier(random_state=42),
         param_grid=params,
         cv=3,
         n_jobs=-1,

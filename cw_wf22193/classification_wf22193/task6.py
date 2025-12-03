@@ -6,8 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import RandomizedSearchCV
 
-RANDOM_SEED = 42
-REDUCED_PATH = Path("cifar_pca_200.npz")
+REDUCED_DIR = Path("cifar_pca_200.npz")
 
 
 def load_reduced_data(path: Path):
@@ -20,7 +19,7 @@ def load_reduced_data(path: Path):
 
 
 def main():
-    X_train, y_train, X_test, y_test = load_reduced_data(REDUCED_PATH)
+    X_train, y_train, X_test, y_test = load_reduced_data(REDUCED_DIR)
 
 #Hyperparameters for random forest
     param_dist = {
@@ -34,7 +33,7 @@ def main():
 
 #Initialise random forest with parallelisation
     rf = RandomForestClassifier(
-        random_state=RANDOM_SEED,
+        random_state=42,
         n_jobs=-1,
     )
 
@@ -44,7 +43,7 @@ def main():
         n_iter=10,
         cv=3,
         n_jobs=-1,
-        random_state=RANDOM_SEED,
+        random_state=42,
     )
 
     search.fit(X_train, y_train)

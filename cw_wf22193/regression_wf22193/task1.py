@@ -14,12 +14,12 @@ data = pd.read_csv(file_name)
 X = data.drop(columns=["charges"])
 y = data["charges"]
 
-numeric_features = ["age", "bmi", "children"]
+numerical_features = ["age", "bmi", "children"]
 categorical_features = ["sex", "smoker", "region"]
 
 preprocessor = ColumnTransformer(
     transformers=[
-        ("num", StandardScaler(), numeric_features),
+        ("num", StandardScaler(), numerical_features),
         ("cat", OneHotEncoder(), categorical_features),
     ]
 )

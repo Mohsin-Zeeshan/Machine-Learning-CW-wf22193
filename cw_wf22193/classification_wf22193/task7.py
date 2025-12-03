@@ -6,8 +6,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 
-RANDOM_SEED = 42
-REDUCED_PATH = Path("cifar_pca_200.npz")
+REDUCED_DIR = Path("cifar_pca_200.npz")
 MAX_TRAIN_SAMPLES = 15000  # Limit for grid search due to SVM training time
 
 
@@ -22,10 +21,10 @@ def load_reduced_data(path: Path):
 
 
 def main():
-    X_train, y_train, X_test, y_test = load_reduced_data(REDUCED_PATH)
+    X_train, y_train, X_test, y_test = load_reduced_data(REDUCED_DIR)
 
     if X_train.shape[0] > MAX_TRAIN_SAMPLES:
-        rng = np.random.default_rng(RANDOM_SEED)
+        rng = np.random.default_rng(42)
         idx = rng.choice(X_train.shape[0], size=MAX_TRAIN_SAMPLES, replace=False)
         X_train_cv = X_train[idx]
         y_train_cv = y_train[idx]
@@ -42,7 +41,7 @@ def main():
         },
     ]
 
-    svm = SVC(random_state=RANDOM_SEED, cache_size=1000)
+    svm = SVC(random_state=42, cache_size=1000)
 
 #Perform grid search with cross-validation on subset
     clf = GridSearchCV(
@@ -64,7 +63,7 @@ def main():
         C=best_params['C'],
         gamma=best_params['gamma'],
         kernel=best_params['kernel'],
-        random_state=RANDOM_SEED,
+        random_state=42,
         cache_size=1000
     )
     final_svm.fit(X_train, y_train)
