@@ -1,11 +1,12 @@
 # task4.py
 from pathlib import Path
 import pickle
+import urllib.request
+import tarfile
 
 import numpy as np
 from sklearn.decomposition import PCA
 
-RANDOM_SEED = 42
 N_COMPONENTS = 200
 
 DATA_DIR = Path("cifar-10-batches-py")
@@ -38,12 +39,12 @@ def load_cifar10(data_dir: Path):
 
 def reduce_dimensions(X_train, X_test, method: str = "pca"):
     if method == "random":
-        rng = np.random.default_rng(RANDOM_SEED)
+        rng = np.random.default_rng(42)
         idx = rng.choice(X_train.shape[1], size=N_COMPONENTS, replace=False)
-        return X_train[:, idx], X_test[:, idx]
+        return X_train[:, idx].astype(np.float32), X_test[:, idx].astype(np.float32)
 
 #Apply PCA to reduce from 3072 to N_COMPONENTS features which is 200
-    pca = PCA(n_components=N_COMPONENTS, random_state=RANDOM_SEED)
+    pca = PCA(n_components=N_COMPONENTS, random_state=42)
     X_train_reduced = pca.fit_transform(X_train)
     X_test_reduced = pca.transform(X_test)
     return X_train_reduced.astype(np.float32), X_test_reduced.astype(np.float32)
@@ -59,11 +60,33 @@ def load_reduced_data(reduced_path: Path):
     return data["X_train"], data["y_train"], data["X_test"], data["y_test"]
 
 
+def download_cifar10(data_dir: Path):
+    """Download and extract CIFAR-10 dataset if not present."""
+    if data_dir.exists():
+        return
+
+    print("CIFAR-10 dataset not found. Downloading...")
+    url = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
+    tar_path = Path("cifar-10-python.tar.gz")
+
+#Download the file
+    urllib.request.urlretrieve(url, tar_path)
+    print(f"Downloaded {tar_path}")
+
+#Extract the archive
+    print("Extracting dataset...")
+    with tarfile.open(tar_path, "r:gz") as tar:
+        tar.extractall()
+    print(f"Extracted to {data_dir}")
+
+#Clean up the tar file
+    tar_path.unlink()
+    print("Download and extraction complete!")
+
+
 def main():
-    if not DATA_DIR.exists():
-        raise FileNotFoundError(
-            f"Could not find {DATA_DIR}. Download and extract CIFAR-10 first."
-        )
+#Automatically download CIFAR-10 if not present
+    download_cifar10(DATA_DIR)
 
     X_train, y_train, X_test, y_test = load_cifar10(DATA_DIR)
     X_train_red, X_test_red = reduce_dimensions(X_train, X_test, METHOD)

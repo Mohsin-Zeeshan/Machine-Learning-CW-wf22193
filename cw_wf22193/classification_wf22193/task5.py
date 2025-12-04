@@ -1,4 +1,7 @@
 # task5.py
+# READ ME:
+# Decision Tree Classifier on PCA-reduced CIFAR-10 from task4.py
+# Do task5.py after task4.py to ensure reduced data is available
 import numpy as np
 from pathlib import Path
 from sklearn.model_selection import GridSearchCV

@@ -1,4 +1,7 @@
 # task7.py
+# READ ME:
+# Decision Tree Classifier on PCA-reduced CIFAR-10 from task4.py
+# Do task5.py after task7.py to ensure reduced data is available
 from pathlib import Path
 
 import numpy as np
