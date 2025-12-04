@@ -103,7 +103,6 @@ def main():
     f_true = compute_frequencies(deaths_codes)
     f1 = compute_frequencies(d1)
     f2 = compute_frequencies(d2)
-
     print("Frequencies:\n Actual:", f_true, "\n HMM1:", f1, "\n HMM2:", f2)
 
     T_true = compute_transition_matrix(deaths_codes)

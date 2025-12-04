@@ -6,7 +6,6 @@ from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-RANDOM_SEED = 42
 
 
 def prepare_data(file_name: str = "regression_insurance.csv"):
@@ -26,7 +25,7 @@ def prepare_data(file_name: str = "regression_insurance.csv"):
 
 #Only need training data for Bayesian inference
     X_train, _, y_train, _ = train_test_split(
-        X, y, test_size=0.2, random_state=RANDOM_SEED
+        X, y, test_size=0.2, random_state=42
     )
 
     X_train_p = preprocessor.fit_transform(X_train)
@@ -62,7 +61,7 @@ def run_bayesian_regression(X_train: np.ndarray, y_train: np.ndarray):
             tune=1000,
             chains=2,
             target_accept=0.9,
-            random_seed=RANDOM_SEED,
+            random_seed=42,
         )
 
     return trace
